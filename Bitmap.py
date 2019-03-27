@@ -8,6 +8,8 @@ import sys
 
 from math import ceil
 
+from obj_loader import obj_loader
+
 
 def char(c):
     return struct.pack("=c", c.encode('ascii'))
@@ -101,14 +103,13 @@ class Bitmap(object):
         :param y: relative vertical coord of the point
         :return:
         """
-        print("pointSize")
-        print(self.pointSize)
+
         if self.vpHeight != 0 and self.vpWidth != 0:
             xx = x * ((self.vpWidth - self.pointSize) / 2)
             yy = y * ((self.vpHeight - self.pointSize) / 2)
             localX = self.vpX + int((self.vpWidth - self.pointSize) / 2) + int(xx)
             localY = self.vpY + int((self.vpHeight - self.pointSize) / 2) + int(yy)
-            print(x, y, localX, localY)
+
             for x in range(self.pointSize):
                 for y in range(self.pointSize):
                     self.point(localX + x, localY + y, color(self.vr, self.vb, self.vg))
@@ -146,7 +147,7 @@ class Bitmap(object):
         :param filename: name of the file that will be saved
         :return:
         """
-        f = open(filename, 'bw')
+        f = open(filename, 'wb')
 
         # file header (14)
         f.write(char('B'))
@@ -170,6 +171,7 @@ class Bitmap(object):
         f.write(dword(0))
 
         # pixel data
+
         for x in range(self.height):
             for y in range(self.width):
                 f.write(self.pixels[x][y])
@@ -183,7 +185,11 @@ class Bitmap(object):
         :param color: color that will fill the pixel
         :return:
         """
-        self.pixels[y][x] = color
+        try:
+            self.pixels[y][x] = color
+        except:
+            # To avoid index out of range exceptions
+            pass
 
     def square(self, size):
         cordx = int((self.vpWidth / 2)) - int(size / 2)
@@ -250,14 +256,26 @@ class Bitmap(object):
     def transform_x(self, x):
         dx = x * (self.vpWidth / 2)
         realX_vp_size = (self.vpWidth / 2) + dx
-        realX = realX_vp_size  + self.vpX
+        realX = realX_vp_size + self.vpX
         return realX
 
     def transform_y(self, y):
         dy = y * (self.vpHeight / 2)
         realY_vp_size = (self.vpHeight / 2) + dy
-        realY = realY_vp_size  + self.vpY
+        realY = realY_vp_size + self.vpY
         return realY
+
+    def transform_xn(self, realX):
+        realX_vp_size = realX - self.vpX
+        dx = realX_vp_size - ((self.vpWidth / 2))
+        x = dx / (self.vpWidth / 2)
+        return x
+
+    def transform_yn(self, realY):
+        realY_vp_size = realY - self.vpY
+        dy = realY_vp_size - ((self.vpHeight / 2))
+        y = dy / (self.vpHeight / 2)
+        return y
 
     def glLine(self, xo, yo, xf, yf):
 
@@ -276,7 +294,7 @@ class Bitmap(object):
         dx = abs(x2 - x1)
         if dx == 0:
             print("Undefined slope")
-            sys.exit()
+            # sys.exit()
         steep = dy > dx
 
         if steep:
@@ -304,3 +322,57 @@ class Bitmap(object):
             if offset >= threshold:
                 y += 1 if y1 < y2 else -1
                 threshold += 1 * 2 * dx
+
+    def transform_img(self, coords, translate=(0, 0), scale=(1, 1)):
+        x1, y1, x2, y2 = coords
+        scaleX, scaleY = scale
+        translateX, translateY = translate
+        x1 = math.floor((x1 + translateX) * scaleX);
+        y1 = math.floor((y1 + translateY) * scaleY);
+        x2 = math.floor((x2 + translateX) * scaleX);
+        y2 = math.floor((y2 + translateY) * scaleY);
+
+        return x1, y1, x2, y2
+
+    def load(self, filename, translate, scale):
+        """
+        Loads an obj file in the screen
+        wireframe only
+        Input:
+          filename: the full path of the obj file
+          translate: (translateX, translateY) how much the model will be translated during render
+          scale: (scaleX, scaleY) how much the model should be scaled
+        """
+        print("leer")
+        model = obj_loader(filename)
+
+        for face in model.vfaces:
+            vcount = len(face)
+            for j in range(vcount):
+                f1 = face[j][0]
+                f2 = face[(j + 1) % vcount][0]
+
+                v1 = model.vertices[f1 - 1]
+                v2 = model.vertices[f2 - 1]
+
+                scaleX, scaleY = scale
+                translateX, translateY = translate
+
+                """x1 = round((v1[0] + translateX) * scaleX);
+                y1 = round((v1[1] + translateY) * scaleY);
+                x2 = round((v2[0] + translateX) * scaleX);
+                y2 = round((v2[1] + translateY) * scaleY);
+                """
+                coords = v1[0],v1[1],v2[0],v2[1]
+                x1, y1, x2, y2 = self.transform_img(coords,translate,scale)
+                print("lineas")
+                print(x1, y1)
+                print(self.transform_xn(x1), self.transform_yn(y1))
+                print(v1[0], v1[1])
+                print(v2[0], v2[1])
+                print("----------")
+                # self.glLine(self.transform_xn(v1[0]),self.transform_yn(v1[1]), self.transform_xn(v2[0]),self.transform_yn(v2[1]))
+                #self.glLine(v1[0], v1[1], v2[0], v2[1])
+                self.glLine(self.transform_xn(x1), self.transform_yn(y1), self.transform_xn(x2),
+                            self.transform_yn(y2))
+                #self.glLine(x1, y1, x2, y2)
