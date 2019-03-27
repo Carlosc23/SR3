@@ -1,12 +1,10 @@
 # Carlos Calderon, 15219
 # SR1. py
-# Module with a class Software Render that use bitmap to abstract a software render and use it to make a file with a
-# point with a screen
+# Module with a class Software Render that use bitmap to abstract a software render and use it to make a file
 from Bitmap import *
 
 
 class SoftwareRender(object):
-
     """
     Class that use bitmap to abstract a software render
     """
@@ -21,8 +19,6 @@ class SoftwareRender(object):
         :return:
         """
         self.window = ""
-
-
 
     def glCreateWindow(self, width, height):
         """
@@ -127,5 +123,5 @@ class SoftwareRender(object):
     def glLine(self, xo, yo, xf, yf):
         self.window.glLine(xo, yo, xf, yf)
 
-    def load (self,filename,translate, scale):
-        self.window.load(filename,translate,scale)
+    def load(self, filename, translate, scale):
+        self.window.load(filename, translate, scale)

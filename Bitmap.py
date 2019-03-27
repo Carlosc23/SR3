@@ -294,7 +294,7 @@ class Bitmap(object):
         dx = abs(x2 - x1)
         if dx == 0:
             print("Undefined slope")
-            # sys.exit()
+            #sys.exit()
         steep = dy > dx
 
         if steep:
@@ -324,18 +324,24 @@ class Bitmap(object):
                 threshold += 1 * 2 * dx
 
     def transform_img(self, coords, translate=(0, 0), scale=(1, 1)):
+        """
+        This method transform in size and in coords the original image
+        :param coords: The original coords of the vertex
+        :param translate: the params that translates the vertex
+        :param scale: the params that make bigger or smaller the vertex
+        :return: the coords transformated
+        """
         x1, y1, x2, y2 = coords
-        scaleX, scaleY = scale
-        translateX, translateY = translate
-        x1 = math.floor((x1 + translateX) * scaleX);
-        y1 = math.floor((y1 + translateY) * scaleY);
-        x2 = math.floor((x2 + translateX) * scaleX);
-        y2 = math.floor((y2 + translateY) * scaleY);
+        x1 = math.floor((x1 + translate[0]) * scale[0]);
+        y1 = math.floor((y1 + translate[1]) * scale[1]);
+        x2 = math.floor((x2 + translate[0]) * scale[0]);
+        y2 = math.floor((y2 + translate[1]) * scale[1]);
 
         return x1, y1, x2, y2
 
     def load(self, filename, translate, scale):
         """
+        Based on example of Graphics Course
         Loads an obj file in the screen
         wireframe only
         Input:
@@ -343,7 +349,6 @@ class Bitmap(object):
           translate: (translateX, translateY) how much the model will be translated during render
           scale: (scaleX, scaleY) how much the model should be scaled
         """
-        print("leer")
         model = obj_loader(filename)
 
         for face in model.vfaces:
@@ -355,24 +360,7 @@ class Bitmap(object):
                 v1 = model.vertices[f1 - 1]
                 v2 = model.vertices[f2 - 1]
 
-                scaleX, scaleY = scale
-                translateX, translateY = translate
-
-                """x1 = round((v1[0] + translateX) * scaleX);
-                y1 = round((v1[1] + translateY) * scaleY);
-                x2 = round((v2[0] + translateX) * scaleX);
-                y2 = round((v2[1] + translateY) * scaleY);
-                """
-                coords = v1[0],v1[1],v2[0],v2[1]
-                x1, y1, x2, y2 = self.transform_img(coords,translate,scale)
-                print("lineas")
-                print(x1, y1)
-                print(self.transform_xn(x1), self.transform_yn(y1))
-                print(v1[0], v1[1])
-                print(v2[0], v2[1])
-                print("----------")
-                # self.glLine(self.transform_xn(v1[0]),self.transform_yn(v1[1]), self.transform_xn(v2[0]),self.transform_yn(v2[1]))
-                #self.glLine(v1[0], v1[1], v2[0], v2[1])
+                coords = v1[0], v1[1], v2[0], v2[1]
+                x1, y1, x2, y2 = self.transform_img(coords, translate, scale)
                 self.glLine(self.transform_xn(x1), self.transform_yn(y1), self.transform_xn(x2),
                             self.transform_yn(y2))
-                #self.glLine(x1, y1, x2, y2)
