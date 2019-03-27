@@ -1,7 +1,7 @@
 # Carlos Calderon, 15219
-# SR2 Lines
-# Program that create a lines with bresenham algorithm
-import sys
+# SR3 Models
+# Program that renders an obj of blender into simple lines
+# In this case is an simple mushroom of mario bros game
 
 from SR1 import SoftwareRender
 
@@ -13,7 +13,7 @@ x.glViewPort(0, 0, 1000, 1000)
 x.glClear()
 x.glColor(1, 0, 0)
 x.glVertex(0, 0)
-#x.glLine(xo, yo, xf, yf)
-x.load('./models/mushroom.obj', (4, 3), (100, 100))
-#x.load('./models/face.obj', (25, 5), (15, 15))
+# Render the mushroom
+x.load('./models/mushroom.obj', (5, 2), (100, 100))
+
 x.glFinish()
