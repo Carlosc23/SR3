@@ -266,19 +266,35 @@ class Bitmap(object):
         return realY
 
     def transform_xn(self, realX):
+        """
+        This method transform a x coord into a normalized coord
+        :param realX: x coord
+        :return: x normalized coord
+        """
         realX_vp_size = realX - self.vpX
         dx = realX_vp_size - ((self.vpWidth / 2))
         x = dx / (self.vpWidth / 2)
         return x
 
     def transform_yn(self, realY):
+        """
+        This method transform a y coord into a normalized coord
+        :param realY: y coord
+        :return: y normalized coord
+        """
         realY_vp_size = realY - self.vpY
         dy = realY_vp_size - ((self.vpHeight / 2))
         y = dy / (self.vpHeight / 2)
         return y
 
     def glLine(self, xo, yo, xf, yf):
-
+        """
+                This method transform coords on a line with bresenham
+                :param xo: initial x
+                :param yo: initial y
+                :param xf: final x
+                :param yf final y
+                """
         print("**********************")
         print(xo, "valor x1")
         print(yo, "valor y1 ")
